@@ -1,0 +1,109 @@
+import java.util.Random;
+import java.util.Scanner;
+class Uno{
+    static String[] deck = {"red 0","red 1","red 2","red 3","red 4","red 5","red 6","red 7","red 8","red 9","red stop","red reverse","red double","yellow 0","yellow 1","yellow 2","yellow 3","yellow 4","yellow 5","yellow 6","yellow 7","yellow 8","yellow 9","yellow block","yellow reverse","yellow double","blue 0","blue 1","blue 2","blue 3","blue 4","blue 5","blue 6","blue 7","blue 8","blue 9","blue block","blue reverse","blue double","green 0","green 1","green 2","green 3","green 4","green 5","green 6","green 7","green 8","green 9","green block","green reverse","green double"};
+    static String[] handP1 = new String[51];
+    static String[] handP2 = new String[51];
+    static Random rand = new Random();
+    static int pick;
+    static int numOfCards = 7;
+    static Scanner myObj = new Scanner(System.in);
+    static String cardOnTable;
+    static void shuffle(){
+        int r;
+        String temp;
+        Random rand = new Random();
+        for (int i = 0; i < deck.length; i++)
+        {
+            r = rand.nextInt(deck.length);
+            temp = deck[r];
+            deck[r] = deck[i];
+            deck[i] = temp;
+        }
+    }
+    static void showMyCards(String[] player){
+        System.out.println("#############");
+        for(int i=0;i<player.length;i++){
+            if(player[i] != null){
+                System.out.println(player[i]);
+            }
+        }
+        System.out.println("#############");
+    }
+    static void dealCard(){
+        int ra = rand.nextInt(deck.length);
+        if(deck[ra]!=null){
+            cardOnTable = deck[ra];
+            System.out.println("card on table: "+cardOnTable);
+        }
+        else{
+            dealCard();
+        }
+    }
+    static void putCard(String card, String[] playerHand){
+        String type[] = card.split(" ",2);
+        String onTable[] = cardOnTable.split(" ",2);
+        System.out.println(type[0] + onTable[0]);
+        
+        for (int i = 0; i < playerHand.length; i++) {
+            if (playerHand[i] != null && card.equals(playerHand[i])) {
+                    if(type[0].equals(onTable[0])||type[1].equals(onTable[1])){
+                    playerHand[i] = null;
+                    System.out.println("Card placed: " + card);
+                    cardOnTable = card;
+                    System.out.println("card on table: "+cardOnTable);
+                    return;
+                }
+            }
+        }
+        System.out.println("You cannot place this card.");
+    }
+    static void playGame(){
+        shuffle();
+        for (int i = 0; i < deck.length; i ++){
+            System.out.print(deck[i]+", ");
+        }
+        System.out.println("");
+        for(int i = 0; i < numOfCards; i++){
+            handP1[i] = deck[i];
+            deck[i] = null;
+        }
+        for(int i = 0; i < numOfCards+numOfCards; i++){
+            if(deck[i]!=null){
+                handP2[i] = deck[i];
+                deck[i] = null;
+            }
+            else{
+
+            }
+        }
+        dealCard();
+        while(true){
+            String card = myObj.nextLine();
+            if(card.equals("put card")){
+                System.out.println("which player is putting the card");
+                String currentPlayer = myObj.nextLine();
+                System.out.println("Which card do you want to put down?");
+                card = myObj.nextLine();
+                if(currentPlayer.equals("player 1")){
+                    putCard(card, handP1);
+                }else{
+                    putCard(card, handP2);
+                }
+            }
+            if(card.equals("show cards")){
+                System.out.println("which player?");
+                card = myObj.nextLine();
+                if(card.equals("player 1")){
+                    showMyCards(handP1);
+                }
+                else{
+                    showMyCards(handP2);
+                }
+            }
+        }
+    }
+    public static void main(String[] args) {
+        playGame();
+    }
+}
