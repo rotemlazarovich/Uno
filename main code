@@ -9,6 +9,7 @@ class Uno{
     static int numOfCards = 7;
     static Scanner myObj = new Scanner(System.in);
     static String cardOnTable;
+    static int turn = 0;
     static void shuffle(){
         int r;
         String temp;
@@ -52,58 +53,53 @@ class Uno{
                     System.out.println("Card placed: " + card);
                     cardOnTable = card;
                     System.out.println("card on table: "+cardOnTable);
-                    return;
+                    if(turn == 0)
+                    turn += 1;
+                    else
+                    turn -= 1;
+                    playGame();
                 }
             }
         }
         System.out.println("You cannot place this card.");
     }
     static void playGame(){
-        shuffle();
-        for (int i = 0; i < deck.length; i ++){
-            System.out.print(deck[i]+", ");
-        }
-        System.out.println("");
+        if(turn == 0)
+        System.out.println("current player: player 1");
+        else
+        System.out.println("current player: player 2");
         for(int i = 0; i < numOfCards; i++){
             handP1[i] = deck[i];
             deck[i] = null;
         }
-        for(int i = 0; i < numOfCards+numOfCards; i++){
+        for(int i = 0; i < 14; i++){
             if(deck[i]!=null){
                 handP2[i] = deck[i];
                 deck[i] = null;
             }
-            else{
-
-            }
         }
-        dealCard();
         while(true){
             String card = myObj.nextLine();
             if(card.equals("put card")){
-                System.out.println("which player is putting the card");
-                String currentPlayer = myObj.nextLine();
                 System.out.println("Which card do you want to put down?");
                 card = myObj.nextLine();
-                if(currentPlayer.equals("player 1")){
+                if(turn==0)
                     putCard(card, handP1);
-                }else{
+                else
                     putCard(card, handP2);
-                }
             }
             if(card.equals("show cards")){
-                System.out.println("which player?");
-                card = myObj.nextLine();
-                if(card.equals("player 1")){
+                if(turn==0)
                     showMyCards(handP1);
-                }
-                else{
+                else
                     showMyCards(handP2);
-                }
             }
         }
     }
+    
     public static void main(String[] args) {
+        shuffle();
+        dealCard();
         playGame();
     }
 }
