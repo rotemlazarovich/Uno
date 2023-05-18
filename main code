@@ -1,7 +1,10 @@
 import java.util.Random;
 import java.util.Scanner;
-class Uno{
-    static String[] deck = {"red 0","red 1","red 2","red 3","red 4","red 5","red 6","red 7","red 8","red 9","red stop","red reverse","red double","yellow 0","yellow 1","yellow 2","yellow 3","yellow 4","yellow 5","yellow 6","yellow 7","yellow 8","yellow 9","yellow block","yellow reverse","yellow double","blue 0","blue 1","blue 2","blue 3","blue 4","blue 5","blue 6","blue 7","blue 8","blue 9","blue block","blue reverse","blue double","green 0","green 1","green 2","green 3","green 4","green 5","green 6","green 7","green 8","green 9","green block","green reverse","green double"};
+import java.awt.Button;
+import java.awt.Frame;
+class Uno extends Frame{
+    static String[] deck = {"red 0","red 1","red 2","red 3","red 4","red 5","red 6","red 7","red 8","red 9","red block","red reverse","red double","yellow 0","yellow 1","yellow 2","yellow 3","yellow 4","yellow 5","yellow 6","yellow 7","yellow 8","yellow 9","yellow block","yellow reverse","yellow double","blue 0","blue 1","blue 2","blue 3","blue 4","blue 5","blue 6","blue 7","blue 8","blue 9","blue block","blue reverse","blue double","green 0","green 1","green 2","green 3","green 4","green 5","green 6","green 7","green 8","green 9","green block","green reverse","green double"};
+    static String[] tableCards = new String[deck.length];
     static String[] handP1 = new String[51];
     static String[] handP2 = new String[51];
     static Random rand = new Random();
@@ -10,6 +13,7 @@ class Uno{
     static Scanner myObj = new Scanner(System.in);
     static String cardOnTable;
     static int turn = 0;
+    static boolean PVE = false;
     static void shuffle(){
         int r;
         String temp;
@@ -44,39 +48,98 @@ class Uno{
     static void putCard(String card, String[] playerHand){
         String type[] = card.split(" ",2);
         String onTable[] = cardOnTable.split(" ",2);
-        System.out.println(type[0] + onTable[0]);
         
         for (int i = 0; i < playerHand.length; i++) {
             if (playerHand[i] != null && card.equals(playerHand[i])) {
                     if(type[0].equals(onTable[0])||type[1].equals(onTable[1])){
-                    playerHand[i] = null;
-                    System.out.println("Card placed: " + card);
-                    cardOnTable = card;
-                    System.out.println("card on table: "+cardOnTable);
-                    if(turn == 0)
-                    turn += 1;
-                    else
-                    turn -= 1;
-                    playGame();
+                        playerHand[i] = null;
+                        System.out.println("Card placed: " + card);
+                        cardOnTable = card;
+                        System.out.println("card on table: "+cardOnTable);
+                        if(!type[1].equals("block")){
+                            if(turn == 0)
+                            turn += 1;
+                            else
+                            turn -= 1;
+                        }
+                        playGame();
                 }
             }
         }
         System.out.println("You cannot place this card.");
     }
-    static void playGame(){
-        if(turn == 0)
-        System.out.println("current player: player 1");
-        else
-        System.out.println("current player: player 2");
-        for(int i = 0; i < numOfCards; i++){
-            handP1[i] = deck[i];
-            deck[i] = null;
-        }
-        for(int i = 0; i < 14; i++){
-            if(deck[i]!=null){
-                handP2[i] = deck[i];
-                deck[i] = null;
+    static void takeCard(String[] playerHand){
+        for(int i = 0; i < deck.length; i++){
+            if(deck[i] != null){
+                for(int f = 0; f<playerHand.length; f++){
+                    if(playerHand[f] == null){
+                        playerHand[f] = deck[i];
+                        System.out.println("took "+ deck[i]);
+                        deck[i] = null;
+                        if(turn == 0)
+                        turn += 1;
+                        else
+                        turn -= 1;
+                        System.out.println("card on table: "+cardOnTable);
+                        playGame();
+                    }
+                }
             }
+        }
+    }
+    static void computerPlaying(){
+        for(int i = 0; i < handP2.length; i++){
+            if(handP2[i] != null){
+                String type[] = handP2[i].split(" ",2);
+                String onTable[] = cardOnTable.split(" ",2);
+                if(type[0].equals(onTable[0])||type[1].equals(onTable[1])){
+                    // cardOnTable = handP2[i];
+                    // System.out.println("card put: "+handP2[i]);
+                    // handP2[i] = null;
+                    // turn = 0;
+                    putCard(handP2[i], handP2);
+                    playGame();
+                }
+            }
+            else
+            takeCard(handP2);
+        }
+    }
+    static void reShuffle(){
+        int r;
+        String temp;
+        Random rand = new Random();
+        for (int i = 0; i < tableCards.length; i++)
+        {
+            r = rand.nextInt(tableCards.length);
+            temp = tableCards[r];
+            tableCards[r] = tableCards[i];
+            tableCards[i] = temp;
+        }
+        System.out.println("reSuffled");
+    }
+    static void playGame(){
+        for(int i = 0; i < tableCards.length; i++){
+            if(tableCards[i] != null)
+            tableCards[i] = cardOnTable;
+        }
+        for(int i = 0; i < deck.length; i++){
+            if(deck[i] != null){
+            i = deck.length+1;
+            }
+            else{
+            reShuffle();
+            }
+        }
+        if (PVE == false){
+            if(turn == 0)
+            System.out.println("current player: player 1");
+            else
+            System.out.println("current player: player 2");
+        }
+        else{
+            if(turn == 1)
+            computerPlaying();
         }
         while(true){
             String card = myObj.nextLine();
@@ -94,11 +157,42 @@ class Uno{
                 else
                     showMyCards(handP2);
             }
+            if(card.equals("take card")){
+                if(turn==0)
+                takeCard(handP1);
+                else
+                takeCard(handP2);
+            }
         }
     }
-    
+    // Uno(){
+    //     Button b = new Button("Click Me!!"); 
+    //     b.setBounds(30,100,80,30);  
+    //     add(b);  
+    //     setSize(300,300);  
+    //     setTitle("This is our basic AWT example");    
+    //     setLayout(null);   
+    //     setVisible(true);  
+    // }
     public static void main(String[] args) {
+        Uno f = new Uno();
         shuffle();
+        for(int i = 0; i < numOfCards; i++){
+            handP1[i] = deck[i];
+            deck[i] = null;
+        }
+        for(int i = 0; i < 14; i++){
+            if(deck[i]!=null){
+                handP2[i] = deck[i];
+                deck[i] = null;
+            }
+        }
+        System.out.println("do you have friends or do you want to play with a computer?");
+        System.out.println("1:PVE 2:PVP");
+        String card = myObj.nextLine();
+        if(card.equals("1")){
+            PVE = true;
+        }
         dealCard();
         playGame();
     }
